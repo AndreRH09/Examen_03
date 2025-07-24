@@ -12,8 +12,8 @@ import java.io.IOException
 
 class SupabaseService {
     companion object {
-        private const val SUPABASE_URL = "YOUR_SUPABASE_URL"
-        private const val SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY"
+        private const val SUPABASE_URL = "https://lxybtcjtwaiemqiiccwx.supabase.co"
+        private const val SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4eWJ0Y2p0d2FpZW1xaWljY3d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyOTcxNDUsImV4cCI6MjA2ODg3MzE0NX0.laQDW3m-E7gvxqBX6C080ZuskkERzZ4SJMR37mDH0OQ"
 
         private val client = OkHttpClient()
         private val gson = Gson()
@@ -83,30 +83,7 @@ class SupabaseService {
         })
     }
 
-    fun updateHealthStatus(userId: String, newStatus: HealthStatus, callback: Callback<Boolean>) {
-        val url = "$SUPABASE_URL/rest/v1/users?id=eq.$userId"
 
-        val json = """{"health_status": "${newStatus.name}"}"""
-        val body = json.toRequestBody(JSON)
-
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("apikey", SUPABASE_KEY)
-            .addHeader("Authorization", "Bearer $SUPABASE_KEY")
-            .addHeader("Prefer", "return=minimal")
-            .patch(body)
-            .build()
-
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback.onError(e.message ?: "Network error")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                callback.onSuccess(response.isSuccessful)
-            }
-        })
-    }
 
     fun saveContact(contact: Contact, callback: Callback<Boolean>) {
         val url = "$SUPABASE_URL/rest/v1/contacts"
@@ -128,6 +105,32 @@ class SupabaseService {
             }
 
             override fun onResponse(call: Call, response: Response) {
+                callback.onSuccess(response.isSuccessful)
+            }
+        })
+    }
+    fun updateHealthStatus(userId: String, newStatus: HealthStatus, callback: Callback<Boolean>) {
+        val url = "$SUPABASE_URL/rest/v1/users?id=eq.$userId"
+
+        // CONSTRUYE EL JSON PARA EL UPDATE
+        val json = """{"health_status": "${newStatus.name}"}"""
+        val body = json.toRequestBody(JSON)
+
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("apikey", SUPABASE_KEY)
+            .addHeader("Authorization", "Bearer $SUPABASE_KEY")
+            .addHeader("Prefer", "return=minimal")
+            .patch(body) // ← AQUÍ SE HACE EL UPDATE A SUPABASE
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback.onError(e.message ?: "Network error")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                // CONFIRMA SI EL UPDATE FUE EXITOSO
                 callback.onSuccess(response.isSuccessful)
             }
         })

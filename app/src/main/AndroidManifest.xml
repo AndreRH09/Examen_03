@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
 
@@ -36,6 +37,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".bluetooth.BleService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
     </application>
 
 </manifest>
